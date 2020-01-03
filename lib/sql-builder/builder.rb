@@ -9,7 +9,10 @@
 #      .order("id asc")
 #      .page(1).per(20)
 #      .to_sql
+require "active_record"
+
 class SQLBuilder
+  attr_reader :sql, :conditions, :orders, :limit_options, :page_options
   delegate :sanitize_sql, :sanitize_sql_for_order, to: ActiveRecord::Base
 
   def initialize(sql = "")
@@ -27,7 +30,7 @@ class SQLBuilder
   # count_query.where(query)
   def where(*condition)
     case condition.first
-    when Longbridge::SqlBuilder
+    when SQLBuilder
       query_scope = condition.first
       @conditions = query_scope.conditions
     else
@@ -100,7 +103,4 @@ class SQLBuilder
     end
     sql_parts.join(" ")
   end
-
-  private
-    attr_reader :sql, :conditions, :orders, :limit_options, :page_options
 end
