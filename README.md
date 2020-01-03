@@ -35,7 +35,7 @@ SQLBuilder.new("SELECT * FROM users")
 => "SELECT * FROM users WHERE name = 'hello world' AND status != 1 ORDER BY created_at desc, id asc LIMIT 20 OFFSET 0"
 ```
 
-More complext:
+More complex case:
 
 ```rb
 query = SQLBuilder.new("SELECT users.name, users.age, user_profiles.bio, user_profiles.avatar FROM users INNER JOIN user_profiles ON users.id = user_profiles.user_id")
