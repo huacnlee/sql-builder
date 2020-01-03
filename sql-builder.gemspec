@@ -7,8 +7,8 @@ Gem::Specification.new do |s|
   s.authors       = ["Jason Lee"]
   s.email         = ["huacnlee@gmail.com"]
 
-  s.summary       = %q{A simple SQL builder for generate SQL for non-ActiveRecord supports databases}
-  s.description   = %q{A simple SQL builder for generate SQL for non-ActiveRecord supports databases.}
+  s.summary       = "A simple SQL builder for generate SQL for non-ActiveRecord supports databases"
+  s.description   = "A simple SQL builder for generate SQL for non-ActiveRecord supports databases."
   s.homepage      = "https://github.com/huacnlee/sql-builder"
   s.license       = "MIT"
 
