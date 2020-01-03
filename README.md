@@ -4,6 +4,8 @@ A simple SQL builder for generate SQL for non-ActiveRecord supports databases.
 
 [![Build Status](https://travis-ci.org/huacnlee/sql-builder.svg?branch=master)](https://travis-ci.org/huacnlee/sql-builder)
 
+[中文说明](https://ruby-china.org/topics/39399)
+
 ## Features
 
 - Simple SQL generator with DSL.
