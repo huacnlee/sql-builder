@@ -45,6 +45,15 @@ class BuilderTest < ActiveSupport::TestCase
     assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group("name, gender").limit(10).offset(2).to_sql
     assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group([:name, :gender]).limit(10).offset(2).to_sql
     assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group(:name, :gender).limit(10).offset(2).to_sql
+
+    # should unique
+    out = SQLBuilder.new("select name from users").where("gender = ?", 1)
+      .group(:name, :gender)
+      .group([:name, :gender])
+      .group("name", "gender")
+      .group("name").group("gender")
+      .limit(10).offset(2).to_sql
+    assert_equal expected, out
   end
 
   test "having" do
@@ -52,7 +61,6 @@ class BuilderTest < ActiveSupport::TestCase
     assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group("name").having("gender != ?", 2).having("age > ?", 18).limit(10).offset(2).to_sql
     assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group("name").having("gender != 2").having("age > 18").limit(10).offset(2).to_sql
   end
-
 
   test "pagination" do
     expected = "select * from users WHERE age != 20 LIMIT 20 OFFSET 0"

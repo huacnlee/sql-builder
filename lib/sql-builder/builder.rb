@@ -91,7 +91,14 @@ class SQLBuilder
   #   query.group("name").group("age").to_sql # => "GROUP BY name, age"
   #
   def group(*args)
-    @groups += args
+    case args.first
+    when Array
+      @groups += args.first.collect(&:to_s)
+    else
+      @groups += args.collect(&:to_s)
+    end
+
+    @groups.uniq!
     self
   end
 
