@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sql-builder (0.1.0)
+    sql-builder (0.2.0)
       activerecord (>= 4.2)
 
 GEM

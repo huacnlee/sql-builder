@@ -81,6 +81,7 @@ select user_id, name, count(ip) as ip_count from user_visits WHERE status = 1 AN
 ## TODO
 
 - [ ] `OR` conditions;
+- [X] `Group By`, `Having`;
 
 ## License
 
