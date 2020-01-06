@@ -51,6 +51,14 @@ query.order("id desc").limit(100).to_sql
 => "SELECT users.name, users.age, user_profiles.bio, user_profiles.avatar FROM users INNER JOIN user_profiles ON users.id = user_profiles.user_id WHERE age >= 18 AND status = 3 AND created_at >= '2020-01-03 10:54:08 +0800' and created_at <= '2020-01-03 10:54:08 +0800' ORDER BY id desc LIMIT 100 OFFSET 0"
 ```
 
+Group by, Having:
+
+```rb
+query = SQLBuilder.new("select user_id, name, count(ip) as ip_count from user_visits")
+query.where("status = ?", 1).where("created_at > ?", params[:created_at])
+query.group("user_id").group("name")
+```
+
 ## TODO
 
 - [ ] `OR` conditions;

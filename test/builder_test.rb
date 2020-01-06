@@ -32,9 +32,27 @@ class BuilderTest < ActiveSupport::TestCase
     assert_equal expected, count_query.to_sql
   end
 
-  test "simple" do
-    assert_sql_equal "select * from users WHERE name = 'hello world' AND status != 1", SQLBuilder.new("select * from users").where("name = ?", "hello world").where("status != ?", 1).to_sql
+  test "where" do
+    expected = "select * from users WHERE name = 'hello world' AND status != 1"
+    assert_sql_equal expected, SQLBuilder.new("select * from users").where("name = ?", "hello world").where("status != ?", 1).to_sql
+    assert_sql_equal expected, SQLBuilder.new("select * from users").where("name = ? AND status != ?", "hello world", 1).to_sql
   end
+
+  test "group" do
+    expected = "select name from users WHERE gender = 1 GROUP BY name, gender LIMIT 10 OFFSET 2"
+    assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group("name").group("gender").limit(10).offset(2).to_sql
+    assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group("name", "gender").limit(10).offset(2).to_sql
+    assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group("name, gender").limit(10).offset(2).to_sql
+    assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group([:name, :gender]).limit(10).offset(2).to_sql
+    assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group(:name, :gender).limit(10).offset(2).to_sql
+  end
+
+  test "having" do
+    expected = "select name from users WHERE gender = 1 GROUP BY name HAVING gender != 2 AND age > 18 LIMIT 10 OFFSET 2"
+    assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group("name").having("gender != ?", 2).having("age > ?", 18).limit(10).offset(2).to_sql
+    assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group("name").having("gender != 2").having("age > 18").limit(10).offset(2).to_sql
+  end
+
 
   test "pagination" do
     expected = "select * from users WHERE age != 20 LIMIT 20 OFFSET 0"

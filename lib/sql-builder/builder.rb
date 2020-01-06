@@ -12,13 +12,15 @@
 require "active_record"
 
 class SQLBuilder
-  attr_reader :sql, :conditions, :orders, :limit_options, :page_options
+  attr_reader :sql, :conditions, :havings, :orders, :groups, :limit_options, :page_options
   delegate :sanitize_sql, :sanitize_sql_for_order, to: ActiveRecord::Base
 
   def initialize(sql = "")
     @sql = sql
     @conditions = []
     @orders = []
+    @groups = []
+    @havings = []
     @limit_options = {}
     @page_options = { per_page: 20 }
   end
@@ -66,6 +68,27 @@ class SQLBuilder
     self
   end
 
+  # Group By
+  #
+  # Allows to specify a group attribute:
+  #
+  # query.group("name as new_name, age")
+  # or
+  # query.group("name", "age")
+  # query.group("name").group("age")
+  def group(*args)
+    @groups += args
+    self
+  end
+
+  # Having
+  #
+  # query.group("name").having("count(name) > ?", 5)
+  def having(*condition)
+    havings << sanitize_sql(condition)
+    self
+  end
+
   # Pagination
   #
   # query.page(1).per(12) => "LIMIT 12 OFFSET 0"
@@ -94,6 +117,12 @@ class SQLBuilder
     end
     if orders.any?
       sql_parts << "ORDER BY " + orders.join(", ")
+    end
+    if groups.any?
+      sql_parts << "GROUP BY " + groups.join(", ")
+    end
+    if havings.any?
+      sql_parts << "HAVING " + havings.join(" AND ")
     end
     if limit_options[:limit]
       sql_parts << "LIMIT " + limit_options[:limit].to_s
