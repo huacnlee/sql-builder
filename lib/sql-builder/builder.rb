@@ -1,20 +1,26 @@
+require "active_record"
+
 # SQLBuilder write the complex SQL as DSL
+# = Example:
 #
-# Example:
-#
-#    query = SQLBuilder.new("SELECT * FROM users inner join ")
+#    query = SQLBuilder.new("SELECT * FROM users")
 #      .where("name = ?", "hello world")
 #      .where("status != ?", 1)
 #      .order("created_at desc")
 #      .order("id asc")
 #      .page(1).per(20)
 #      .to_sql
-require "active_record"
-
 class SQLBuilder
   attr_reader :sql, :conditions, :havings, :orders, :groups, :limit_options, :page_options
   delegate :sanitize_sql, :sanitize_sql_for_order, to: ActiveRecord::Base
 
+  # Create a new SQLBuilder
+  #
+  # == Example
+  #   query = SQLBuilder.new("SELECT users.*, user_profiles.avatar FROM users INNER JOIN user_profiles ON users.id = user_profiles.id")
+  #   query.to_sql
+  #   # => "SELECT users.*, user_profiles.avatar FROM users INNER JOIN user_profiles ON users.id = user_profiles.id"
+  #
   def initialize(sql = "")
     @sql = sql
     @conditions = []
@@ -27,9 +33,11 @@ class SQLBuilder
 
   # Add `AND` condition
   #
-  # query.where("name = ?", params[:name]).where("age >= ?", 18)
+  #   query.where("name = ?", params[:name]).where("age >= ?", 18)
+  #
   # or
-  # count_query.where(query)
+  #
+  #   count_query.where(query)
   def where(*condition)
     case condition.first
     when SQLBuilder
@@ -44,16 +52,15 @@ class SQLBuilder
 
   # Order By
   #
-  # query.order("name asc").order("created_at desc").to_sql
-  # => "ORDER BY name asc, created_at desc"
+  #   query.order("name asc").order("created_at desc").to_sql
+  #   # => "ORDER BY name asc, created_at desc"
   def order(condition)
     orders << sanitize_sql_for_order(condition)
     self
   end
 
   # Offset
-  #
-  # query.offset(3).limit(10) => "LIMIT 10 OFFSET 3"
+  # See #limit
   def offset(offset)
     limit_options[:offset] = offset.to_i
     self
@@ -61,7 +68,8 @@ class SQLBuilder
 
   # Limit
   #
-  # query.offset(3).limit(10) => "LIMIT 10 OFFSET 3"
+  #   query.offset(3).limit(10).to_sql
+  #   # => "LIMIT 10 OFFSET 3"
   def limit(limit)
     limit_options[:offset] ||= 0
     limit_options[:limit] = limit.to_i
@@ -72,10 +80,16 @@ class SQLBuilder
   #
   # Allows to specify a group attribute:
   #
-  # query.group("name as new_name, age")
+  #   query.group("name as new_name, age").to_sql
+  #   # => "GROUP BY name as new_name, age"
+  #
   # or
-  # query.group("name", "age")
-  # query.group("name").group("age")
+  #
+  #   query.group("name", "age").to_sql # => "GROUP BY name, age"
+  #   query.group(:name, :age).to_sql # => "GROUP BY name, age"
+  #   query.group(["name", "age"]).to_sql # => "GROUP BY name, age"
+  #   query.group("name").group("age").to_sql # => "GROUP BY name, age"
+  #
   def group(*args)
     @groups += args
     self
@@ -83,7 +97,9 @@ class SQLBuilder
 
   # Having
   #
-  # query.group("name").having("count(name) > ?", 5)
+  #   query.group("name").having("count(name) > ?", 5).to_sql
+  #   # => "GROUP BY name HAVING count(name) > 5"
+  #
   def having(*condition)
     havings << sanitize_sql(condition)
     self
@@ -91,8 +107,8 @@ class SQLBuilder
 
   # Pagination
   #
-  # query.page(1).per(12) => "LIMIT 12 OFFSET 0"
-  # query.page(2).per(12) => "LIMIT 12 OFFSET 12"
+  #   query.page(1).per(12).to_sql # => "LIMIT 12 OFFSET 0"
+  #   query.page(2).per(12).to_sql # => "LIMIT 12 OFFSET 12"
   def page(page_no)
     page_options[:page] = page_no
     page_options[:per_page] ||= 10
@@ -102,7 +118,8 @@ class SQLBuilder
     self
   end
 
-  # See page
+  # Set per_page limit
+  # See #page
   def per(per_page)
     page_options[:per_page] = per_page
     self.page(page_options[:page])
