@@ -47,7 +47,6 @@ Add the conditions by request params:
 
 ```ruby
 query.where("age >= ?", params[:age]) unless params[:age].blank?
-# use Hash where
 query.where(status: params[:status]) unless params[:status].nil?
 if params[:created_at_from] && params[:created_at_to]
   query.where("created_at >= ? and created_at <= ?", params[:created_at_from], params[:created_at_to])
@@ -68,7 +67,7 @@ ORDER BY id desc LIMIT 100 OFFSET 0
 
 ```rb
 query = SQLBuilder.new("select user_id, name, count(ip) as ip_count from user_visits")
-query.where("status = ?", 1).where("created_at > ?", params[:created_at])
+query.where(status: 1).where("created_at > ?", params[:created_at])
 query.group("user_id").group("name").having("count(ip) > 2")
 query.to_sql
 ```
