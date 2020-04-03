@@ -47,7 +47,8 @@ Add the conditions by request params:
 
 ```ruby
 query.where("age >= ?", params[:age]) unless params[:age].blank?
-query.where("status = ?", params[:status]) unless params[:status].nil?
+# use Hash where
+query.where(status: params[:status]) unless params[:status].nil?
 if params[:created_at_from] && params[:created_at_to]
   query.where("created_at >= ? and created_at <= ?", params[:created_at_from], params[:created_at_to])
 end

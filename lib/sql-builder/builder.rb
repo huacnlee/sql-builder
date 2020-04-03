@@ -12,7 +12,7 @@ require "active_record"
 #      .to_sql
 class SQLBuilder
   attr_reader :sql, :conditions, :havings, :orders, :groups, :limit_options, :page_options
-  delegate :sanitize_sql, :sanitize_sql_for_order, to: ActiveRecord::Base
+  delegate :sanitize_sql_array, :sanitize_sql_for_order, to: ActiveRecord::Base
 
   # Create a new SQLBuilder
   #
@@ -44,7 +44,7 @@ class SQLBuilder
       query_scope = condition.first
       @conditions = query_scope.conditions
     else
-      conditions << sanitize_sql(condition)
+      conditions << sanitize_sql_for_assignment(condition)
     end
 
     self
@@ -108,7 +108,7 @@ class SQLBuilder
   #   # => "GROUP BY name HAVING count(name) > 5"
   #
   def having(*condition)
-    havings << sanitize_sql(condition)
+    havings << sanitize_sql_for_assignment(condition)
     self
   end
 
@@ -137,16 +137,16 @@ class SQLBuilder
   def to_sql
     sql_parts = [sql]
     if conditions.any?
-      sql_parts << "WHERE " + conditions.join(" AND ")
+      sql_parts << "WHERE " + conditions.flatten.join(" AND ")
     end
     if orders.any?
-      sql_parts << "ORDER BY " + orders.join(", ")
+      sql_parts << "ORDER BY " + orders.flatten.join(", ")
     end
     if groups.any?
-      sql_parts << "GROUP BY " + groups.join(", ")
+      sql_parts << "GROUP BY " + groups.flatten.join(", ")
     end
     if havings.any?
-      sql_parts << "HAVING " + havings.join(" AND ")
+      sql_parts << "HAVING " + havings.flatten.join(" AND ")
     end
     if limit_options[:limit]
       sql_parts << "LIMIT " + limit_options[:limit].to_s
@@ -155,5 +155,23 @@ class SQLBuilder
       sql_parts << "OFFSET " + limit_options[:offset].to_s
     end
     sql_parts.join(" ")
+  end
+
+  private
+
+  # https://api.rubyonrails.org/classes/ActiveRecord/Sanitization/ClassMethods.html#method-i-sanitize_sql_for_assignment
+  def sanitize_sql_for_assignment(assignments)
+    case assignments.first
+    when Hash; sanitize_sql_hash_for_assignment(assignments.first)
+    else
+      sanitize_sql_array(assignments)
+    end
+  end
+
+  # https://api.rubyonrails.org/classes/ActiveRecord/Sanitization/ClassMethods.html#method-i-sanitize_sql_hash_for_assignment
+  def sanitize_sql_hash_for_assignment(attrs)
+    attrs.map do |attr, value|
+      sanitize_sql_array(["#{attr} = ?", value])
+    end
   end
 end

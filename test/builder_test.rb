@@ -35,7 +35,14 @@ class BuilderTest < ActiveSupport::TestCase
   test "where" do
     expected = "select * from users WHERE name = 'hello world' AND status != 1"
     assert_sql_equal expected, SQLBuilder.new("select * from users").where("name = ?", "hello world").where("status != ?", 1).to_sql
-    assert_sql_equal expected, SQLBuilder.new("select * from users").where("name = ? AND status != ?", "hello world", 1).to_sql
+  end
+
+  test "where with hash options" do
+    expected = "select * from users WHERE age = 100 AND name = 'hello world' AND status = 1"
+    scope = SQLBuilder.new("select * from users")
+      .where("age = :age", age: 100)
+      .where(name: "hello world", status: 1)
+    assert_sql_equal expected, scope.to_sql
   end
 
   test "group" do
@@ -57,9 +64,9 @@ class BuilderTest < ActiveSupport::TestCase
   end
 
   test "having" do
-    expected = "select name from users WHERE gender = 1 GROUP BY name HAVING gender != 2 AND age > 18 LIMIT 10 OFFSET 2"
-    assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group("name").having("gender != ?", 2).having("age > ?", 18).limit(10).offset(2).to_sql
-    assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group("name").having("gender != 2").having("age > 18").limit(10).offset(2).to_sql
+    expected = "select name from users WHERE gender = 1 GROUP BY name HAVING gender != 2 AND age = 18 LIMIT 10 OFFSET 2"
+    assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group("name").having("gender != ?", 2).having(age: 18).limit(10).offset(2).to_sql
+    assert_equal expected, SQLBuilder.new("select name from users").where("gender = ?", 1).group("name").having("gender != 2").having("age = 18").limit(10).offset(2).to_sql
   end
 
   test "pagination" do
