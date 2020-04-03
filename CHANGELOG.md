@@ -1,3 +1,8 @@
+0.3.0
+---------
+
+- Allow where/having to supports hash options.
+
 0.2.0
 ---------
 

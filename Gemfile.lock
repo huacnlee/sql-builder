@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sql-builder (0.2.0)
+    sql-builder (0.3.0)
       activerecord (>= 4.2)
 
 GEM
@@ -40,4 +40,4 @@ DEPENDENCIES
   sqlite3
 
 BUNDLED WITH
-   2.0.2
+   2.1.4
