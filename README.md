@@ -2,7 +2,7 @@
 
 A simple SQL builder for generate SQL for non-ActiveRecord supports databases.
 
-[![Build Status](https://travis-ci.org/huacnlee/sql-builder.svg?branch=master)](https://travis-ci.org/huacnlee/sql-builder)
+[![build](https://github.com/huacnlee/sql-builder/workflows/build/badge.svg)](https://github.com/huacnlee/sql-builder/actions?query=workflow%3Abuild)
 
 [中文说明](https://ruby-china.org/topics/39399)
 
@@ -81,7 +81,7 @@ select user_id, name, count(ip) as ip_count from user_visits WHERE status = 1 AN
 ## TODO
 
 - [ ] `OR` conditions;
-- [X] `Group By`, `Having`;
+- [x] `Group By`, `Having`;
 
 ## License
 
