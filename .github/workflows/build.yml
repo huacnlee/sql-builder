@@ -12,11 +12,11 @@ jobs:
           gemfile: Gemfile
         - ruby: 2.6
           gemfile: gemfiles/Gemfile-6-0
-        - ruby: 2.6
+        - ruby: 2.5
           gemfile: gemfiles/Gemfile-5-2
-        - ruby: 2.6
-          gemfile: gemfiles/Gemfile-5-0
         - ruby: 2.4
+          gemfile: gemfiles/Gemfile-5-0
+        - ruby: 2.3
           gemfile: gemfiles/Gemfile-4-2
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}

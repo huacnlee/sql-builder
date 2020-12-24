@@ -12,7 +12,6 @@ require "active_record"
 #      .to_sql
 class SQLBuilder
   attr_reader :sql, :conditions, :havings, :orders, :groups, :limit_options, :page_options
-  delegate :sanitize_sql_array, :sanitize_sql_for_order, to: ActiveRecord::Base
 
   # Create a new SQLBuilder
   #
@@ -173,5 +172,13 @@ class SQLBuilder
     attrs.map do |attr, value|
       sanitize_sql_array(["#{attr} = ?", value])
     end
+  end
+
+  def sanitize_sql_array(*args)
+    ActiveRecord::Base.send(:sanitize_sql_array, *args)
+  end
+
+  def sanitize_sql_for_order(*args)
+    ActiveRecord::Base.send(:sanitize_sql_for_order, *args)
   end
 end
