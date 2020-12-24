@@ -174,11 +174,12 @@ class SQLBuilder
     end
   end
 
-  def sanitize_sql_array(*args)
-    ActiveRecord::Base.send(:sanitize_sql_array, *args)
+  def sanitize_sql_array(ary)
+    ActiveRecord::Base.send(:sanitize_sql_array, ary)
   end
 
-  def sanitize_sql_for_order(*args)
-    ActiveRecord::Base.send(:sanitize_sql_for_order, *args)
+  def sanitize_sql_for_order(ary)
+    return ary if ActiveRecord.version < Gem::Version.new("5.0.0")
+    ActiveRecord::Base.send(:sanitize_sql_for_order, ary)
   end
 end
