@@ -12,6 +12,7 @@ require "active_record"
 #      .to_sql
 class SQLBuilder
   attr_reader :sql, :conditions, :havings, :orders, :groups, :limit_options, :page_options
+  attr_accessor :ors
 
   # Create a new SQLBuilder
   #
@@ -26,6 +27,7 @@ class SQLBuilder
     @orders = []
     @groups = []
     @havings = []
+    @ors = []
     @limit_options = {}
     @page_options = { per_page: 20 }
   end
@@ -111,6 +113,20 @@ class SQLBuilder
     self
   end
 
+  # Or
+  #
+  #   query.or(query.where(num: 1)).to_sql # => "OR num = 1"
+  #
+  def or(other)
+    if other.is_a?(SQLBuilder)
+      self.ors << other.ors if other.ors.any?
+      self.ors << other.conditions if other.conditions.any?
+    else
+      raise ArgumentError, "You have passed #{other.class.name} object to #or. Pass an SQLBuilder object instead."
+    end
+    self
+  end
+
   # Pagination
   #
   #   query.page(1).per(12).to_sql # => "LIMIT 12 OFFSET 0"
@@ -137,6 +153,9 @@ class SQLBuilder
     sql_parts = [sql]
     if conditions.any?
       sql_parts << "WHERE " + conditions.flatten.join(" AND ")
+    end
+    if ors.any?
+      sql_parts = extract_sql_parts(sql_parts, ors)
     end
     if orders.any?
       sql_parts << "ORDER BY " + orders.flatten.join(", ")
@@ -181,5 +200,20 @@ class SQLBuilder
   def sanitize_sql_for_order(ary)
     return ary if ActiveRecord.version < Gem::Version.new("5.0.0")
     ActiveRecord::Base.send(:sanitize_sql_for_order, ary)
+  end
+
+  def extract_sql_parts(sql_parts, ors)
+    if ors.is_a?(Array)
+      ors.each do |single_or|
+        next unless single_or.is_a?(Array)
+
+        if (single_or[0][0].is_a?(Array) rescue false)
+          extract_sql_parts(sql_parts, single_or)
+        else
+          sql_parts << "OR " + single_or.flatten.join(" AND ")
+        end
+      end
+    end
+    sql_parts
   end
 end
