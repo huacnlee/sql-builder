@@ -2,7 +2,7 @@
 
 A simple SQL builder for generate SQL for non-ActiveRecord supports databases.
 
-[![build](https://github.com/huacnlee/sql-builder/workflows/build/badge.svg)](https://github.com/huacnlee/sql-builder/actions?query=workflow%3Abuild)
+[![build](https://github.com/huacnlee/sql-builder/workflows/build/badge.svg)](https://github.com/huacnlee/sql-builder/actions?query=workflow%3Abuild) [![Gem Version](https://badge.fury.io/rb/sql-builder.svg)](https://badge.fury.io/rb/sql-builder)
 
 [中文说明](https://ruby-china.org/topics/39399)
 
