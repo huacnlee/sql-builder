@@ -63,6 +63,21 @@ WHERE age >= 18 AND status = 3 AND created_at >= '2020-01-03 10:54:08 +0800' AND
 ORDER BY id desc LIMIT 100 OFFSET 0
 ```
 
+## Or
+
+```rb
+query = SQLBuilder.new("SELECT * FROM users")
+  .where("age = ?", 20).where(num: 10)
+query = query.or(SQLBuilder.new.where("gender = ? AND name = ?", 1, "hello world"))
+query.order("id DESC").limit(100).to_sql
+```
+
+Returns string SQL:
+
+```sql
+SELECT * FROM users WHERE age = 20 AND num = 10 OR gender = 1 AND name = 'hello world' ORDER BY id DESC LIMIT 100 
+```
+
 ### Group by, Having
 
 ```rb
@@ -77,12 +92,6 @@ returns
 ```sql
 select user_id, name, count(ip) as ip_count from user_visits WHERE status = 1 AND status = 1 AND created_at > '2020-01-03 10:54:08 +0800' GROUP BY user_id, name HAVING count(ip) > 2"
 ```
-
-## TODO
-
-- [ ] `OR` conditions;
-- [x] `Group By`, `Having`;
-
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

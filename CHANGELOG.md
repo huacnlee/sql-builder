@@ -1,3 +1,6 @@
+## 1.0.0
+
+- Add `or` supports. (#3)
 ## 0.4.0
 
 - Fix for Rails 4.x, 5.x supports.
