@@ -14,13 +14,13 @@ class BuilderTest < ActiveSupport::TestCase
       .limit(10).offset(2)
 
     expected = <<~SQL
-    SELECT cb.*, acc.member_id
-    FROM psql.cashbalance cb
-    LEFT JOIN public.accounts as acc on acc.origin_id = cb.acc_no
-    WHERE cb.acc_no = 1014382 AND cb.currency = 'SGD' AND cb.dt <= '20200102' AND cb.dt not in ('20200101','20191201')
-    ORDER BY acc.member_id asc, cb.dt desc
-    LIMIT 10
-    OFFSET 2
+      SELECT cb.*, acc.member_id
+      FROM psql.cashbalance cb
+      LEFT JOIN public.accounts as acc on acc.origin_id = cb.acc_no
+      WHERE cb.acc_no = 1014382 AND cb.currency = 'SGD' AND cb.dt <= '20200102' AND cb.dt not in ('20200101','20191201')
+      ORDER BY acc.member_id asc, cb.dt desc
+      LIMIT 10
+      OFFSET 2
     SQL
 
     assert_sql_equal expected, query.to_sql
@@ -80,7 +80,7 @@ class BuilderTest < ActiveSupport::TestCase
 
   test "or" do
     expected = "select * from users WHERE age = 20 AND num = 10 OR desc = 'test' AND color = 'green' OR gender = 1 AND name = 'hello world'"
-    assert_equal expected, SQLBuilder.new("select * from users").where("age = ?", 20).where(num: 10).or(SQLBuilder.new.where("gender = ?", 1).where(name: 'hello world').or(SQLBuilder.new.where(desc: 'test', color: 'green'))).to_sql
-    assert_equal expected, SQLBuilder.new("select * from users").where("age = ?", 20).where(num: 10).or(SQLBuilder.new.where(desc: 'test', color: 'green')).or(SQLBuilder.new.where("gender = ?", 1).where(name: 'hello world')).to_sql
+    assert_equal expected, SQLBuilder.new("select * from users").where("age = ?", 20).where(num: 10).or(SQLBuilder.new.where("gender = ?", 1).where(name: "hello world").or(SQLBuilder.new.where(desc: "test", color: "green"))).to_sql
+    assert_equal expected, SQLBuilder.new("select * from users").where("age = ?", 20).where(num: 10).or(SQLBuilder.new.where(desc: "test", color: "green")).or(SQLBuilder.new.where("gender = ?", 1).where(name: "hello world")).to_sql
   end
 end

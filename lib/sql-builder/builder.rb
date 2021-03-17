@@ -29,7 +29,7 @@ class SQLBuilder
     @havings = []
     @ors = []
     @limit_options = {}
-    @page_options = { per_page: 20 }
+    @page_options = {per_page: 20}
   end
 
   # Add `AND` condition
@@ -92,11 +92,11 @@ class SQLBuilder
   #   query.group("name").group("age").to_sql # => "GROUP BY name, age"
   #
   def group(*args)
-    case args.first
+    @groups += case args.first
     when Array
-      @groups += args.first.collect(&:to_s)
+      args.first.collect(&:to_s)
     else
-      @groups += args.collect(&:to_s)
+      args.collect(&:to_s)
     end
 
     @groups.uniq!
@@ -119,8 +119,8 @@ class SQLBuilder
   #
   def or(other)
     if other.is_a?(SQLBuilder)
-      self.ors << other.ors if other.ors.any?
-      self.ors << other.conditions if other.conditions.any?
+      ors << other.ors if other.ors.any?
+      ors << other.conditions if other.conditions.any?
     else
       raise ArgumentError, "You have passed #{other.class.name} object to #or. Pass an SQLBuilder object instead."
     end
@@ -144,7 +144,7 @@ class SQLBuilder
   # See #page
   def per(per_page)
     page_options[:per_page] = per_page
-    self.page(page_options[:page])
+    page(page_options[:page])
     self
   end
 
@@ -180,7 +180,7 @@ class SQLBuilder
   # https://api.rubyonrails.org/classes/ActiveRecord/Sanitization/ClassMethods.html#method-i-sanitize_sql_for_assignment
   def sanitize_sql_for_assignment(assignments)
     case assignments.first
-    when Hash; sanitize_sql_hash_for_assignment(assignments.first)
+    when Hash then sanitize_sql_hash_for_assignment(assignments.first)
     else
       sanitize_sql_array(assignments)
     end
@@ -207,7 +207,11 @@ class SQLBuilder
       ors.each do |single_or|
         next unless single_or.is_a?(Array)
 
-        if (single_or[0][0].is_a?(Array) rescue false)
+        if begin
+          single_or[0][0].is_a?(Array)
+        rescue
+          false
+        end
           extract_sql_parts(sql_parts, single_or)
         else
           sql_parts << "OR " + single_or.flatten.join(" AND ")
